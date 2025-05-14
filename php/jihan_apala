@@ -1,0 +1,673 @@
+<!-- PILGAN CUSTOM HITUNGAN -->
+<!-- DROPDOWN -->
+<td>
+                                <div class="field">
+                                    <p style="color: #b5b5b5; font-weight: bold;">
+                                        Nilai terpilih: <?= $nilai . " - " . $teks ?>
+                                    </p>
+
+                                    <select name="bobot<?php echo $urut ?>" required>
+                                        <?php if ($customDropdown): ?>
+                                            <?php for ($i = $batasBawah; $i <= $batasAtas; $i++): ?>
+                                                <option value="<?= $i ?>"><?= $i . " - " . $keterangan[$i] ?></option>
+                                            <?php endfor; ?>
+                                        <?php else: ?>
+                                            <option value="<?php echo $nilai ?>" selected></option>
+                                            <?php foreach ($keterangan as $val => $text): ?>
+                                                <option value="<?= $val ?>"><?= $val . " - " . $text ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+
+                                </div>
+                            </td>
+
+    <!-- tambah ini atasnya, inisialisasi sampai atas tr pertama -->
+    //inisialisasi
+                $urut = 0;
+                $nilai_sebelumnya = [];
+
+                for ($x = 0; $x <= ($n - 2); $x++) {
+                    for ($y = ($x + 1); $y <= ($n - 1); $y++) {
+                        $urut++;
+
+                        // Ambil nilai dari fungsi seperti biasa
+                        if ($kriteria == 'kriteria') {
+                            $nilai = getNilaiPerbandinganKriteria($x, $y);
+                        } else {
+                            $nilai = getNilaiPerbandinganAlternatif($x, $y, ($jenis - 1));
+                        }
+
+                        // Simpan nilai ke array
+                        $nilai_sebelumnya[$urut] = $nilai;
+
+                        // Hitung untuk dropdown terbatas (misalnya di baris ke-3)
+                        $customDropdown = false;
+                        if ($urut == 3 && isset($nilai_sebelumnya[1]) && isset($nilai_sebelumnya[2])) {
+                            $hasilPerkalian = $nilai_sebelumnya[1] * $nilai_sebelumnya[2];
+                            $batasBawah = max(1, $hasilPerkalian - 3); // Pastikan tidak kurang dari 1
+                            $batasAtas = min(9, $hasilPerkalian + 1);  // Pastikan tidak lebih dari 9
+                            $customDropdown = true;
+                        }
+
+                        // Pilihan teks
+                        $keterangan = [
+                            1 => "Sama penting",
+                            2 => "Mendekati sedikit lebih penting",
+                            3 => "Sedikit lebih penting",
+                            4 => "Mendekati lebih penting",
+                            5 => "Lebih penting",
+                            6 => "Mendekati sangat penting",
+                            7 => "Sangat penting",
+                            8 => "Mendekati mutlak penting",
+                            9 => "Mutlak sangat penting"
+                        ];
+
+                        $teks = isset($keterangan[$nilai]) ? $keterangan[$nilai] : "Tidak diketahui";
+                        ?>
+
+
+
+<!-- ORDER -->
+<?php
+                $pasangan = [
+                    [0, 1],
+                    [1, 2],
+                    [1, 3],
+                    [0, 1],
+                    [0, 2],
+                    [2, 3],
+                ];
+
+                foreach ($pasangan as $pair) {
+                    $x = $pair[0];
+                    $y = $pair[1];
+                    ?>
+
+
+
+
+
+<!-- OPTION1 DR DB -->
+<option style="color: grey;" value="<?php echo $nilai ?>" selected><?= $nilai . " - " . $teks ?></option>
+
+
+
+
+
+
+<!-- pilgan -->
+
+<div class="field">
+
+<?php
+if ($kriteria == 'kriteria') {
+    $nilai = getNilaiPerbandinganKriteria($x, $y);
+} else {
+    $nilai = getNilaiPerbandinganAlternatif($x, $y, ($jenis - 1));
+}
+?>
+
+<?php
+if ($kriteria == 'kriteria') {
+    $nilai = getNilaiPerbandinganKriteria($x, $y);
+} else {
+    $nilai = getNilaiPerbandinganAlternatif($x, $y, ($jenis - 1));
+}
+
+?>
+
+<select name="bobot<?php echo $urut ?>" required>
+    <option value="" selected disabled></option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+</select>
+</div>
+
+
+
+
+
+<!-- PHP REV -->
+
+    <?php
+
+    // mencari ID kriteria
+// berdasarkan urutan ke berapa (C1, C2, C3)
+
+    function getKriteriaID($no_urut)
+    {
+        include('config.php');
+        $query = "SELECT id FROM kriteria ORDER BY id";
+        $result = mysqli_query($koneksi, $query);
+
+        while ($row = mysqli_fetch_array($result)) {
+            $listID[] = $row['id'];
+        }
+
+        return $listID[($no_urut)];
+    }
+
+    // mencari ID alternatif
+// berdasarkan urutan ke berapa (A1, A2, A3)
+
+    function getAlternatifID($no_urut)
+    {
+        include('config.php');
+        $query = "SELECT id FROM alternatif ORDER BY id";
+        $result = mysqli_query($koneksi, $query);
+
+        while ($row = mysqli_fetch_array($result)) {
+            $listID[] = $row['id'];
+        }
+
+        return $listID[($no_urut)];
+    }
+
+    // mencari nama kriteria
+
+    function getKriteriaNama($no_urut)
+    {
+        include('config.php');
+        $query = "SELECT nama FROM kriteria ORDER BY id";
+        $result = mysqli_query($koneksi, $query);
+
+        while ($row = mysqli_fetch_array($result)) {
+            $nama[] = $row['nama'];
+        }
+
+        return $nama[($no_urut)];
+    }
+
+    // mencari nama alternatif
+
+    function getAlternatifNama($no_urut)
+    {
+        include('config.php');
+        $query = "SELECT nama FROM alternatif ORDER BY id";
+        $result = mysqli_query($koneksi, $query);
+
+        while ($row = mysqli_fetch_array($result)) {
+            $nama[] = $row['nama'];
+        }
+
+        return $nama[($no_urut)];
+    }
+
+    // mencari priority vector alternatif
+
+    function getAlternatifPV($id_alternatif, $id_kriteria)
+    {
+        include('config.php');
+        $query = "SELECT nilai FROM pv_alternatif WHERE id_alternatif=$id_alternatif AND id_kriteria=$id_kriteria";
+        $result = mysqli_query($koneksi, $query);
+        while ($row = mysqli_fetch_array($result)) {
+            $pv = $row['nilai'];
+        }
+
+        return $pv;
+    }
+
+    // mencari priority vector kriteria
+
+    function getKriteriaPV($id_kriteria)
+    {
+        include('config.php');
+        $query = "SELECT nilai FROM pv_kriteria WHERE id_kriteria=$id_kriteria";
+        $result = mysqli_query($koneksi, $query);
+        while ($row = mysqli_fetch_array($result)) {
+            $pv = $row['nilai'];
+        }
+
+        return $pv;
+    }
+
+    // mencari jumlah alternatif
+
+    function getJumlahAlternatif()
+    {
+        include('config.php');
+        $query = "SELECT count(*) FROM alternatif";
+        $result = mysqli_query($koneksi, $query);
+        while ($row = mysqli_fetch_array($result)) {
+            $jmlData = $row[0];
+        }
+
+        return $jmlData;
+    }
+
+    // mencari jumlah kriteria
+
+    function getJumlahKriteria()
+    {
+        include('config.php');
+        $query = "SELECT count(*) FROM kriteria";
+        $result = mysqli_query($koneksi, $query);
+        while ($row = mysqli_fetch_array($result)) {
+            $jmlData = $row[0];
+        }
+
+        return $jmlData;
+    }
+
+    // menambah data kriteria / alternatif
+
+    function tambahData($tabel, $nama)
+    {
+        include('config.php');
+
+        $query = "INSERT INTO $tabel (nama) VALUES ('$nama')";
+        $tambah = mysqli_query($koneksi, $query);
+
+        if (!$tambah) {
+            echo "Gagal mmenambah data" . $tabel;
+            exit();
+        }
+    }
+
+    // hapus kriteria
+
+    function deleteKriteria($id)
+    {
+        include('config.php');
+
+        // hapus record dari tabel kriteria
+        $query = "DELETE FROM kriteria WHERE id=$id";
+        mysqli_query($koneksi, $query);
+
+        // hapus record dari tabel pv_kriteria
+        $query = "DELETE FROM pv_kriteria WHERE id_kriteria=$id";
+        mysqli_query($koneksi, $query);
+
+        // hapus record dari tabel pv_alternatif
+        $query = "DELETE FROM pv_alternatif WHERE id_kriteria=$id";
+        mysqli_query($koneksi, $query);
+
+        $query = "DELETE FROM perbandingan_kriteria WHERE kriteria1=$id OR kriteria2=$id";
+        mysqli_query($koneksi, $query);
+
+        $query = "DELETE FROM perbandingan_alternatif WHERE pembanding=$id";
+        mysqli_query($koneksi, $query);
+    }
+
+    // hapus alternatif
+    function deleteAlternatif($id)
+    {
+        include('config.php');
+
+        // hapus record dari tabel alternatif
+        $query = "DELETE FROM alternatif WHERE id=$id";
+        mysqli_query($koneksi, $query);
+
+        // hapus record dari tabel pv_alternatif
+        $query = "DELETE FROM pv_alternatif WHERE id_alternatif=$id";
+        mysqli_query($koneksi, $query);
+
+        // hapus record dari tabel ranking
+        $query = "DELETE FROM ranking WHERE id_alternatif=$id";
+        mysqli_query($koneksi, $query);
+
+        $query = "DELETE FROM perbandingan_alternatif WHERE alternatif1=$id OR alternatif2=$id";
+        mysqli_query($koneksi, $query);
+    }
+
+    // memasukkan nilai priority vektor kriteria
+    function inputKriteriaPV($id_kriteria, $pv)
+    {
+        include('config.php');
+
+        $query = "SELECT * FROM pv_kriteria WHERE id_kriteria=$id_kriteria";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+
+        // jika result kosong maka masukkan data baru
+        // jika telah ada maka diupdate
+        if (mysqli_num_rows($result) == 0) {
+            $query = "INSERT INTO pv_kriteria (id_kriteria, nilai) VALUES ($id_kriteria, $pv)";
+        } else {
+            $query = "UPDATE pv_kriteria SET nilai=$pv WHERE id_kriteria=$id_kriteria";
+        }
+
+
+        $result = mysqli_query($koneksi, $query);
+        if (!$result) {
+            echo "Gagal memasukkan / update nilai priority vector kriteria";
+            exit();
+        }
+
+    }
+
+    // memasukkan nilai priority vektor alternatif
+    function inputAlternatifPV($id_alternatif, $id_kriteria, $pv)
+    {
+        include('config.php');
+
+        $query = "SELECT * FROM pv_alternatif WHERE id_alternatif = $id_alternatif AND id_kriteria = $id_kriteria";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+
+        // jika result kosong maka masukkan data baru
+        // jika telah ada maka diupdate
+        if (mysqli_num_rows($result) == 0) {
+            $query = "INSERT INTO pv_alternatif (id_alternatif,id_kriteria,nilai) VALUES ($id_alternatif,$id_kriteria,$pv)";
+        } else {
+            $query = "UPDATE pv_alternatif SET nilai=$pv WHERE id_alternatif=$id_alternatif AND id_kriteria=$id_kriteria";
+        }
+
+        $result = mysqli_query($koneksi, $query);
+        if (!$result) {
+            echo "Gagal memasukkan / update nilai priority vector alternatif";
+            exit();
+        }
+
+    }
+
+
+    // memasukkan bobot nilai perbandingan kriteria
+    function inputDataPerbandinganKriteria($kriteria1, $kriteria2, $nilai)
+    {
+        include('config.php');
+
+        $id_kriteria1 = getKriteriaID($kriteria1);
+        $id_kriteria2 = getKriteriaID($kriteria2);
+
+        $query = "SELECT * FROM perbandingan_kriteria WHERE kriteria1 = $id_kriteria1 AND kriteria2 = $id_kriteria2";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+
+        // jika result kosong maka masukkan data baru
+        // jika telah ada maka diupdate
+        if (mysqli_num_rows($result) == 0) {
+            $query = "INSERT INTO perbandingan_kriteria (kriteria1,kriteria2,nilai) VALUES ($id_kriteria1,$id_kriteria2,$nilai)";
+        } else {
+            $query = "UPDATE perbandingan_kriteria SET nilai=$nilai WHERE kriteria1=$id_kriteria1 AND kriteria2=$id_kriteria2";
+        }
+
+        $result = mysqli_query($koneksi, $query);
+        if (!$result) {
+            echo "Gagal memasukkan data perbandingan";
+            exit();
+        }
+
+    }
+
+    // memasukkan bobot nilai perbandingan alternatif
+    function inputDataPerbandinganAlternatif($alternatif1, $alternatif2, $pembanding, $nilai)
+    {
+        include('config.php');
+
+
+        $id_alternatif1 = getAlternatifID($alternatif1);
+        $id_alternatif2 = getAlternatifID($alternatif2);
+        $id_pembanding = getKriteriaID($pembanding);
+
+        $query = "SELECT * FROM perbandingan_alternatif WHERE alternatif1 = $id_alternatif1 AND alternatif2 = $id_alternatif2 AND pembanding = $id_pembanding";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+
+        // jika result kosong maka masukkan data baru
+        // jika telah ada maka diupdate
+        if (mysqli_num_rows($result) == 0) {
+            $query = "INSERT INTO perbandingan_alternatif (alternatif1,alternatif2,pembanding,nilai) VALUES ($id_alternatif1,$id_alternatif2,$id_pembanding,$nilai)";
+        } else {
+            $query = "UPDATE perbandingan_alternatif SET nilai=$nilai WHERE alternatif1=$id_alternatif1 AND alternatif2=$id_alternatif2 AND pembanding=$id_pembanding";
+        }
+
+        $result = mysqli_query($koneksi, $query);
+        if (!$result) {
+            echo "Gagal memasukkan data perbandingan";
+            exit();
+        }
+
+    }
+
+    // mencari nilai bobot perbandingan kriteria
+    function getNilaiPerbandinganKriteria($kriteria1, $kriteria2)
+    {
+        include('config.php');
+
+        $id_kriteria1 = getKriteriaID($kriteria1);
+        $id_kriteria2 = getKriteriaID($kriteria2);
+
+        $query = "SELECT nilai FROM perbandingan_kriteria WHERE kriteria1 = $id_kriteria1 AND kriteria2 = $id_kriteria2";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+
+        if (mysqli_num_rows($result) == 0) {
+            $nilai = 1;
+        } else {
+            while ($row = mysqli_fetch_array($result)) {
+                $nilai = $row['nilai'];
+            }
+        }
+
+        return $nilai;
+    }
+
+    // mencari nilai bobot perbandingan alternatif
+    function getNilaiPerbandinganAlternatif($alternatif1, $alternatif2, $pembanding)
+    {
+        include('config.php');
+
+        $id_alternatif1 = getAlternatifID($alternatif1);
+        $id_alternatif2 = getAlternatifID($alternatif2);
+        $id_pembanding = getKriteriaID($pembanding);
+
+        $query = "SELECT nilai FROM perbandingan_alternatif WHERE alternatif1 = $id_alternatif1 AND alternatif2 = $id_alternatif2 AND pembanding = $id_pembanding";
+        $result = mysqli_query($koneksi, $query);
+
+        if (!$result) {
+            echo "Error !!!";
+            exit();
+        }
+        if (mysqli_num_rows($result) == 0) {
+            $nilai = 1;
+        } else {
+            while ($row = mysqli_fetch_array($result)) {
+                $nilai = $row['nilai'];
+            }
+        }
+
+        return $nilai;
+    }
+
+    // menampilkan nilai IR
+    function getNilaiIR($jmlKriteria)
+    {
+        $ir = [0, 0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45]; // Contoh nilai IR
+        return isset($ir[$jmlKriteria]) ? $ir[$jmlKriteria] : null;
+    }
+
+    // mencari Principe Eigen Vector (λ maks)
+    function getEigenVector($matrik_a, $n)
+    {
+        $eigenvektor = [];
+        for ($i = 0; $i < $n; $i++) {
+            $sum = 0;
+            for ($j = 0; $j < $n; $j++) {
+                $sum += $matrik_a[$i][$j];
+            }
+            $eigenvektor[$i] = $sum / $n; // Rata-rata
+        }
+        echo "Eigen Vector: " . implode(", ", $eigenvektor) . "<br>";
+        return $eigenvektor;
+    }
+
+    // mencari Cons Index
+    function getConsIndex($matrik_a, $n)
+    {
+        $lambda_max = getEigenVector($matrik_a, $n); // Ambil nilai eigen maksimum
+        $consindex = ($lambda_max - $n) / ($n - 1);
+        echo "Consistency Index (CI): $consindex<br>";
+        return $consindex;
+    }
+
+    // mencari Consistency Ratio
+    function getConsRatio($matrik_a, $matrik_b, $n)
+    {
+        $consindex = getConsIndex($matrik_a, $matrik_b, $n);
+        $nilaiIR = getNilaiIR($n);
+
+        // Debugging: Cetak nilai yang digunakan
+        echo "Eigen Vector: " . getEigenVector($matrik_a, $matrik_b, $n) . "<br>";
+        echo "Consistency Index (CI): " . $consindex . "<br>";
+        echo "Random Index (IR): " . $nilaiIR . "<br>";
+
+        // Pastikan nilai IR tidak nol untuk menghindari pembagian dengan nol
+        if ($nilaiIR == 0) {
+            echo "Error: Random Index (IR) tidak valid.";
+            return null; // atau nilai default
+        }
+
+        $consratio = $consindex / $nilaiIR;
+
+        return $consratio;
+    }
+
+
+    // menampilkan tabel perbandingan bobot
+    function showTabelPerbandingan($jenis, $kriteria)
+    {
+        include('config.php');
+
+        if ($kriteria == 'kriteria') {
+            $n = getJumlahKriteria();
+        } else {
+            $n = getJumlahAlternatif();
+        }
+
+        $query = "SELECT nama FROM $kriteria";
+        $result = mysqli_query($koneksi, $query);
+        if (!$result) {
+            echo "Error koneksi database!!!";
+            exit();
+        }
+
+        // buat list nama pilihan
+        while ($row = mysqli_fetch_array($result)) {
+            $pilihan[] = $row['nama'];
+        }
+
+        // tampilkan tabel
+        ?>
+
+        <form class="ui form" action="proses.php" method="post">
+            <table class="ui celled selectable collapsing table">
+                <thead>
+                    <tr>
+                        <th colspan="2">pilih yang lebih penting</th>
+                        <th>nilai perbandingan</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <?php
+                    $pasangan = [
+                        [0, 1],
+                        [0, 3],
+                        [0, 2],
+                        [1, 2],
+                        [2, 3],
+                    ];
+
+                    $urut = 1;
+
+                    foreach ($pasangan as $pair) {
+                        $x = $pair[0];
+                        $y = $pair[1];
+                        ?>
+                        <tr>
+                            <td>
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input name="pilih<?php echo $urut ?>" value="1" class="hidden" type="radio" checked>
+                                        <label><?php echo $pilihan[$x]; ?></label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input name="pilih<?php echo $urut ?>" value="2" class="hidden" type="radio">
+                                        <label><?php echo $pilihan[$y]; ?></label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+
+                                    <?php
+                                    if ($kriteria == 'kriteria') {
+                                        $nilai = getNilaiPerbandinganKriteria($x, $y);
+                                    } else {
+                                        $nilai = getNilaiPerbandinganAlternatif($x, $y, ($jenis - 1));
+                                    }
+                                    ?>
+
+                                    <?php
+                                    if ($kriteria == 'kriteria') {
+                                        $nilai = getNilaiPerbandinganKriteria($x, $y);
+                                    } else {
+                                        $nilai = getNilaiPerbandinganAlternatif($x, $y, ($jenis - 1));
+                                    }
+
+                                    ?>
+                                    <!-- <input type="text" name="bobot<?php echo $urut ?>" value="<?php echo $nilai ?>" required> -->
+                                    <select name="bobot<?php echo $urut ?>" required>
+                                        <option value="<?php echo $nilai ?>" selected disabled></option>
+                                        <option value="<?php echo $nilai ?>">1</option>
+                                        <option value="<?php echo $nilai ?>">2</option>
+                                        <option value="<?php echo $nilai ?>">3</option>
+                                        <option value="<?php echo $nilai ?>">4</option>
+                                        <option value="<?php echo $nilai ?>">5</option>
+                                        <option value="<?php echo $nilai ?>">6</option>
+                                        <option value="<?php echo $nilai ?>">7</option>
+                                        <option value="<?php echo $nilai ?>">8</option>
+                                        <option value="<?php echo $nilai ?>">9</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+    }
+
+    ?>
+
+            </tbody>
+        </table>
+        <input type="text" name="jenis" value="<?php echo $jenis; ?>" hidden>
+        <br><br><input class="ui submit button" type="submit" name="submit" value="SUBMIT">
+    </form>
+
+    <?php
+}
+
+?>
